@@ -1,26 +1,90 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext)
+{
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vscode-wrap-markdown.wrapSelectedLines', () => {
+			const selection = vscode.window.activeTextEditor?.selection;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-wrap-markdown" is now active!');
+			if (selection !== undefined)
+			{
+				wrapSelectedLines(selection.start.line, selection.end.line);
+			}
+		}),
+		vscode.commands.registerCommand('vscode-wrap-markdown.wrapFile', () => {
+			const lineCount = vscode.window.activeTextEditor?.document.lineCount;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vscode-wrap-markdown.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-wrap-markdown!');
-	});
-
-	context.subscriptions.push(disposable);
+			if (lineCount !== undefined)
+			{
+				wrapSelectedLines(0, lineCount - 1);
+			}
+		}),
+	);
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+function wrapSelectedLines(firstLine: number, lastLine: number)
+{
+	const editorConfig = vscode.workspace.getConfiguration('editor');
+	const targetWrapColumn = editorConfig.get<number[]>('rulers')?.at(0);
+
+	if (targetWrapColumn === undefined)
+	{
+		vscode.window.showErrorMessage('Can\'t wrap if you don\'t define a ruler to wrap at!');
+		return;
+	}
+
+	const editor = vscode.window.activeTextEditor;
+
+	if (editor === undefined)
+	{
+		return;
+	}
+
+	const changedLines: { pos: vscode.Range, newContent: string }[] = [];
+
+	for (let i = firstLine; i <= lastLine; i ++)
+	{
+		const line = editor.document.lineAt(i);
+		let columnOffset = 0;
+
+		const outputLines: string[] = [];
+		let text = line.text;
+
+		while (line.range.end.character - columnOffset > targetWrapColumn)
+		{
+			const wordOverlapColumn = editor.document
+				.getWordRangeAtPosition(line.range.start.translate(0, columnOffset + targetWrapColumn), /\S+/)
+				?.start
+				.translate(0, -columnOffset)
+				.character
+				?? targetWrapColumn;
+
+			if (wordOverlapColumn === 0)
+			{
+				// This line can't be wrapped, its one massive word!
+				break;
+			}
+
+			// Cut before the overlapping word.
+			outputLines.push(text.substring(0, wordOverlapColumn).trimEnd());
+			text = text.substring(wordOverlapColumn);
+
+			columnOffset += wordOverlapColumn;
+		}
+
+		if (outputLines.length > 0)
+		{
+			changedLines.push({
+				pos: line.range,
+				newContent: outputLines.join('\n') + text
+			});
+		}
+	}
+
+	editor.edit(edit => {
+		changedLines.forEach(({ pos, newContent }) => edit.replace(pos, newContent));
+	});
+}

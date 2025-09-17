@@ -14,8 +14,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-wrap-markdown.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-wrap-markdown.wrapSelectedLines",
+        "title": "Wrap Selected Lines"
+      },
+      {
+        "command": "vscode-wrap-markdown.wrapFile",
+        "title": "Wrap File"
       }
     ]
   },
