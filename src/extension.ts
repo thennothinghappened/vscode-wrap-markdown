@@ -77,9 +77,11 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 
 		if (outputLines.length > 0)
 		{
+			outputLines.push(text);
+
 			changedLines.push({
 				pos: line.range,
-				newContent: outputLines.join('\n') + text
+				newContent: outputLines.join('\n')
 			});
 		}
 	}
