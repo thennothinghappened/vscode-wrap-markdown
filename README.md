@@ -1,71 +1,38 @@
-# vscode-wrap-markdown README
+# vscode-wrap-markdown
 
-This is the README for your extension "vscode-wrap-markdown". After writing up a brief description, we recommend including the following sections.
+vscode either doesn't have a button to wrap at your ruler or i couldn't find it. both are equally
+likely. in the case of the former, i've made an extension
 
-## Features
+## features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### wrapping lines (wow really is that so)
 
-For example if there is an image subfolder under your extension project workspace:
+you can wrap an entire file or just what you've got selected:
 
-\!\[feature X\]\(images/feature-x.png\)
+![Wrapping selected lines, or entire files](docs/demo.gif)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## requirements
 
-## Requirements
+a dying need to line-wrap some files
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## configuration
 
-## Extension Settings
+it picks where to wrap based on the first ruler in your `editor.rulers` list. if you're unfamiliar,
+write something like so:
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+```json
+"editor.rulers": [100]
+```
 
-For example:
+and it'll wrap at column 100
 
-This extension contributes the following settings:
+## known issues
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+treats tabs as 1 column wide. markdown is the one place i use spaces rather than tabs so i probably
+won't fix that
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
+## release notes
 
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+unleashed upon the world

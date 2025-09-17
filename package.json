@@ -23,6 +23,9 @@
       }
     ]
   },
+  "repository": {
+    "url": "https://github.com/thennothinghappened/vscode-wrap-markdown"
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
