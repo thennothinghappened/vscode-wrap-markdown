@@ -43,6 +43,11 @@ const markdownLinePrefixes: { regex: RegExp, appliesToAllLines: boolean }[] = [
 		// Unordered list item.
 		regex: /^- /,
 		appliesToAllLines: false
+	},
+	{
+		// Unordered list item (* style).
+		regex: /^\* /,
+		appliesToAllLines: false
 	}
 ];
 
