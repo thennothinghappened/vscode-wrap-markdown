@@ -56,7 +56,7 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 		while (line.range.end.character - columnOffset > targetWrapColumn)
 		{
 			const wordOverlapColumn = editor.document
-				.getWordRangeAtPosition(line.range.start.translate(0, columnOffset + targetWrapColumn), /\S+/)
+				.getWordRangeAtPosition(line.range.start.translate(0, columnOffset + targetWrapColumn + 1), /\S+/)
 				?.start
 				.translate(0, -columnOffset)
 				.character
