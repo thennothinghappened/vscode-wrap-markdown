@@ -33,6 +33,11 @@ won't fix that
 
 ## release notes
 
+### 1.1.0
+
+indents stuff that you wanted indented. supports some markdown features now to indent those right
+too
+
 ### 1.0.0
 
 unleashed upon the world
