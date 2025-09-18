@@ -22,8 +22,29 @@ export function activate(context: vscode.ExtensionContext)
 	);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
+
+/**
+ * Various markdown syntax that can prefix a line, that change how we should deal with wrapping that
+ * line (particularly indentation.)
+ */
+const markdownLinePrefixes: { regex: RegExp, appliesToAllLines: boolean }[] = [
+	{
+		// Block quote.
+		regex: /^> /,
+		appliesToAllLines: true
+	},
+	{
+		// Numbered list item.
+		regex: /^[1-9]+\. /,
+		appliesToAllLines: false
+	},
+	{
+		// Unordered list item.
+		regex: /^- /,
+		appliesToAllLines: false
+	}
+];
 
 function wrapSelectedLines(firstLine: number, lastLine: number)
 {
@@ -50,10 +71,45 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 		const line = editor.document.lineAt(i);
 		const outputLines: string[] = [];
 		
-		const indentation = line.text.substring(0, line.firstNonWhitespaceCharacterIndex);
-		const maxLineWidth = (targetWrapColumn - indentation.length);
-		
+		let indentation = line.text.substring(0, line.firstNonWhitespaceCharacterIndex);
+		let firstLineSpecialIndent = indentation;
 		let text = line.text.substring(indentation.length);
+
+		while (true)
+		{
+			let foundAnyMatches = false;
+
+			for (const prefix of markdownLinePrefixes)
+			{
+				const match = text.match(prefix.regex)?.at(0);
+
+				if (match === undefined)
+				{
+					continue;
+				}
+
+				foundAnyMatches = true;
+				firstLineSpecialIndent += match;
+
+				if (prefix.appliesToAllLines)
+				{
+					indentation += match;
+				}
+				else
+				{
+					indentation += ' '.repeat(match.length);
+				}
+				
+				text = text.substring(match.length);
+			}
+
+			if (!foundAnyMatches)
+			{
+				break;
+			}
+		}
+
+		const maxLineWidth = (targetWrapColumn - indentation.length);
 		let columnOffset = indentation.length;
 
 		while (line.range.end.character - columnOffset > maxLineWidth)
@@ -80,11 +136,12 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 
 		if (outputLines.length > 0)
 		{
+			outputLines[0] = firstLineSpecialIndent + outputLines[0];
 			outputLines.push(text);
 
 			changedLines.push({
 				pos: line.range,
-				newContent: outputLines.map(line => indentation + line).join('\n')
+				newContent: outputLines.join('\n' + indentation)
 			});
 		}
 	}
