@@ -48,19 +48,22 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 	for (let i = firstLine; i <= lastLine; i ++)
 	{
 		const line = editor.document.lineAt(i);
-		let columnOffset = 0;
-
 		const outputLines: string[] = [];
-		let text = line.text;
+		
+		const indentation = line.text.substring(0, line.firstNonWhitespaceCharacterIndex);
+		const maxLineWidth = (targetWrapColumn - indentation.length);
+		
+		let text = line.text.substring(indentation.length);
+		let columnOffset = indentation.length;
 
-		while (line.range.end.character - columnOffset > targetWrapColumn)
+		while (line.range.end.character - columnOffset > maxLineWidth)
 		{
 			const wordOverlapColumn = editor.document
-				.getWordRangeAtPosition(line.range.start.translate(0, columnOffset + targetWrapColumn + 1), /\S+/)
+				.getWordRangeAtPosition(line.range.start.translate(0, columnOffset + maxLineWidth + 1), /\S+/)
 				?.start
 				.translate(0, -columnOffset)
 				.character
-				?? targetWrapColumn;
+				?? maxLineWidth;
 
 			if (wordOverlapColumn === 0)
 			{
@@ -81,7 +84,7 @@ function wrapSelectedLines(firstLine: number, lastLine: number)
 
 			changedLines.push({
 				pos: line.range,
-				newContent: outputLines.join('\n')
+				newContent: outputLines.map(line => indentation + line).join('\n')
 			});
 		}
 	}
