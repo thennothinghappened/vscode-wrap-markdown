@@ -3,7 +3,7 @@
   "displayName": "vscode-wrap-markdown",
   "description": " vscode extension to wrap markdown at my editor ruler ",
   "publisher": "orca",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "engines": {
     "vscode": "^1.104.0"
   },
